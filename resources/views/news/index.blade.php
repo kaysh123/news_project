@@ -19,6 +19,16 @@
                     {{ session('success') }}
                 </div>
             @endif
+             <!-- Category Filter -->
+             <div class="mb-3">
+                <label for="categoryFilter" class="form-label">Filter by Category:</label>
+                <select class="form-select" id="categoryFilter">
+                    <option value="">All Categories</option>
+                    @foreach ($categories as $category)
+                        <option value="{{ $category->title }}">{{ $category->title }}</option>
+                    @endforeach
+                </select>
+            </div>
 
             <div class="card">
                 {{-- <h5 class="card-header">Table</h5> --}}
@@ -173,9 +183,9 @@
     @push('scripts')
 
         <script type="text/javascript">
-            $(document).ready( function () {
-    $('#new-table').DataTable();
-} );
+//             $(document).ready( function () {
+//     $('#new-table').DataTable();
+// } );
             $(document).ready(function() {
                 $('.user-delete').on('click', function(e) {
                     e.preventDefault(); // Prevent the default link behavior
@@ -207,6 +217,21 @@
                                 console.error(xhr.responseText);
                             }
                         });
+                    }
+                });
+                // Filter news by category
+                $('#categoryFilter').on('change', function() {
+                    let categoryId = $(this).val();
+                    if (categoryId !== '') {
+                        $('table tbody tr').hide();
+                        $('table tbody tr').each(function() {
+                            let categoryValue = $(this).find('td:eq(1)').text();
+                            if (categoryValue === categoryId) {
+                                $(this).show();
+                            }
+                        });
+                    } else {
+                        $('table tbody tr').show();
                     }
                 });
             });

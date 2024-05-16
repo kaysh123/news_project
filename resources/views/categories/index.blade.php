@@ -15,6 +15,10 @@
             <a type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal" href="">Add New
                 Cetegory</a>
             <br><br>
+              <!-- Search Input -->
+              <div class="col-3 input-group mb-3">
+                <input type="text" class="form-control" placeholder="Enter Text to Search" id="searchInput">
+            </div>
 
             <div class="card">
                 {{-- <h5 class="card-header">Table</h5> --}}
@@ -126,6 +130,18 @@
                             }
                         });
                     }
+                });
+                    // Search function on keyup
+                $('#searchInput').on('keyup', function() {
+                let searchText = $(this).val().toLowerCase();
+                    $('table tbody tr').each(function() {
+                        let currentRowText = $(this).text().toLowerCase();
+                        if (currentRowText.indexOf(searchText) !== -1) {
+                            $(this).show();
+                        } else {
+                            $(this).hide();
+                        }
+                    });
                 });
             });
         </script>

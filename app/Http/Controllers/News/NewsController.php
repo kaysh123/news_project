@@ -13,10 +13,10 @@ class NewsController extends Controller
     {
         //$cetegories = Cetegory::first(); // Fetch the first category record
         //$title = $cetegories ? $cetegories->title : 'Default Title';
-        //$cetegories = Cetegory::all();
+        $categories = Cetegory::all();
         $news = News::orderBy('created_at', 'desc')->limit(1000)->get();
 
-        return view('news.index', ['allnews' => $news]); // 'cetegories' => $cetegories, 'title' => $title,]);
+        return view('news.index', ['allnews' => $news,'categories'=>$categories]); // 'cetegories' => $cetegories, 'title' => $title,]);
     }
     public function addNews(Request $request)
     {

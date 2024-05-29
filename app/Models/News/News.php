@@ -22,6 +22,9 @@ class News extends Model
         'content',
         'image',
         'url',
+        'region',
+        'source_id',
+        'source_icon'
         // Add other fillable fields here
     ];
 }

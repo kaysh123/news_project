@@ -20,7 +20,7 @@ class NewsApiController extends Controller
     //
     public function fetch_news(Request $request)
     {
-        // return $request->input('category');
+        // return 1;
         $query = $request->input('category');
         $region = $request->input('region');
         $news = News::where('cetegory_id', $query)
@@ -33,6 +33,7 @@ class NewsApiController extends Controller
 
         $news = $news->orderBy('created_at', 'desc')->paginate(15);
         if ($news->isEmpty()) {
+            // return 1;
             // If no news found, fetch news from the Perigon API
             $countryName = urlencode($query);
             $api = ApiSelect::where('status', 1)->first();
@@ -81,7 +82,6 @@ class NewsApiController extends Controller
                                 'content' => $articleData['content'],
                                 'image' => $articleData['imageUrl'],
                                 'url' => $articleData['url'],
-                                'region'=>$articleData['ai_region']
                                 // Add other fields here
                             ]
                         );
@@ -106,15 +106,18 @@ class NewsApiController extends Controller
                 }
                 //End of Perigon API Response
             } else {
-                if($region)
+                if($region && $countryName)
                 {
                     $response = Http::get("https://newsdata.io/api/1/news?apikey=$apiKey&language=en&size=50&q=$countryName&country=us&region=$region");
                 }
-                else
+                else if($region)
+                {
+                    $response = Http::get("https://newsdata.io/api/1/news?apikey=$apiKey&language=en&size=50&country=us&region=$region");
+                }
+                else if($countryName)
                 {
                     $response = Http::get("https://newsdata.io/api/1/news?apikey=$apiKey&language=en&size=50&q=$countryName&country=us");
                 }
-
                 //Start of News Data.io API Response
                 if ($response->successful()) {
                     $articles = $response->json()['results'];
@@ -124,6 +127,7 @@ class NewsApiController extends Controller
                             $firstCategoryName = $articleData['category'][0];
                         }
                         $country = implode(',', $articleData['country']);
+                        $region = implode(',', $articleData['ai_region']);
                         //$country = implode(',', $articleData['creator']);
                         //old method to add news
                         /* $news = News::create([
@@ -150,7 +154,9 @@ class NewsApiController extends Controller
                                 'content' => $articleData['content'] ?? 'N/A',
                                 'image' => $articleData['image_url'] ?? 'N/A',
                                 'url' => $articleData['link'] ?? 'N/A',
-                                'region'=>$articleData['ai_region'] ?? 'N/A',
+                                'region'=>$region,
+                                'source_id'=>$articleData['source_id'] ?? 'N/A',
+                                'source_icon'=>$articleData['source_icon'] ?? 'N/A',
                                 // Add other fields here
                             ]
                         );
@@ -158,13 +164,13 @@ class NewsApiController extends Controller
                         
                     }
                     $news = News::where('title', 'like', "%$query%")
-                        ->orWhere('description', 'like', "%$query%");
-                       
-                    if($region)
-                    {
-                        $news = $news->where('region','like', "%$query%");
-                    }
-                    $news = $news->orderBy('created_at', 'desc')->paginate(15);
+                    ->orWhere('description', 'like', "%$query%");
+                   
+                if($region)
+                {
+                    $news = $news->where('region','like', "%$query%");
+                }
+                $news = $news->orderBy('created_at', 'desc')->paginate(15);
                     return response()->json([
                         'status' => true,
                         'message' => 'Data fetched successfully',
@@ -173,13 +179,12 @@ class NewsApiController extends Controller
                 }
             }
         } 
-        else 
-        {
-            return response()->json([
-                'status' => true,
-                'message' => 'Data fetched successfully',
-                'newsList' => $news
-            ]);
+        else {
+        return response()->json([
+            'status' => true,
+            'message' => 'Data fetched successfully',
+            'newsList' => $news
+        ]);
         }
     }
 

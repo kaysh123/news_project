@@ -12,11 +12,13 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         Commands\TestCron::class,
+        \App\Console\Commands\DispatchHoulrlyNewsNotification::class,
     ];
 
     protected function schedule(Schedule $schedule): void
     {
         $schedule->command('send:custom-reminders')->everyMinute();
+        $schedule->command('send:dispatch-houlrly-news-notification')->hourly();
     }
 
     /**
